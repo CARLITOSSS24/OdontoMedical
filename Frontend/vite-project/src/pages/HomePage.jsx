@@ -192,7 +192,10 @@ const HomePage = () => {
         >
           <FaTooth size={48} color={palette.secondary} className="mb-3" />
           <p style={{ color: palette.gray, fontWeight: 500, textAlign: "center" }}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod.
+            Especialistas en tu salud bucal
+            Ofrecemos tratamientos de Periodoncia 
+            e Implantología con tecnología avanzada 
+            y atención personalizada.
           </p>
         </div>
         <div
@@ -211,7 +214,9 @@ const HomePage = () => {
         >
           <FaRegSmile size={48} color={palette.accent} className="mb-3" />
           <p style={{ color: palette.gray, fontWeight: 500, textAlign: "center" }}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod.
+            Sonrisas que transforman vidas
+            Cuidamos tu bienestar con un enfoque 
+            humano, profesional y centrado en tus necesidades.
           </p>
         </div>
       </div>

@@ -44,7 +44,7 @@ const NavBar = () => {
         }}
         onClick={() => setMenuOpen(false)}
       >
-        Agendar Cita
+        Servicios
       </Link>
       <Link
         to="/mis-citas"

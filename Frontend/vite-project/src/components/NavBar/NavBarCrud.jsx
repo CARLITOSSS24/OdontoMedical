@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Nav } from "react-bootstrap";
-import { FaUserCog, FaTimes, FaUser, FaConciergeBell, FaKey, FaHistory, FaUserMd, FaClinicMedical, FaCalendarAlt, FaSignOutAlt, FaFileMedical } from "react-icons/fa";
+import { FaUserCog, FaTimes, FaUser, FaConciergeBell, FaKey, FaHistory, FaUserMd, FaClinicMedical, FaCalendarAlt, FaSignOutAlt } from "react-icons/fa";
 import { Button } from "react-bootstrap";
 import { AuthContext } from "../../contexts/AuthContext";
-import { Modal, Form, Table } from 'react-bootstrap';
+
 
 // Valores por defecto para el esquema de colores
 const defaultColorScheme = {
@@ -67,7 +67,7 @@ const NavBarCrud = ({
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/", { replace: true });
   };
 
   // Menú hamburguesa para móviles

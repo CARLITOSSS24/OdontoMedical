@@ -28,7 +28,7 @@ const VerMiHistoria = () => {
         const res = await api.get(`/historiales/paciente/${idPaciente}`);
         setHistorial(res.data);
       } catch {
-        setError('No se pudo cargar el historial clínico.');
+        setError('Aun no tienes historiales.');
       }
       setLoading(false);
     };
