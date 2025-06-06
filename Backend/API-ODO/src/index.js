@@ -12,6 +12,7 @@ import modelOdoConsultorio from "./routes/rutasOdoConsultorios.js";
 import modelOdoDoctora from "./routes/rutasOdoDoctora.js";
 import rutasOdoCitas from "./routes/rutasOdoCitas.js"; 
 import rutasOdoLogin from "./routes/rutasOdoLogin.js";
+import rutasOdoCargo from './routes/rutasOdoCargo.js';
 
 events.setMaxListeners(20);
 
@@ -32,6 +33,7 @@ app.use('/api/', modelOdoConsultorio);
 app.use('/api/', modelOdoDoctora);
 app.use('/api/', rutasOdoCitas);
 app.use('/api/', rutasOdoLogin);
+app.use('/api/', rutasOdoCargo);
 
 swaggerDocs(app, port); 
 

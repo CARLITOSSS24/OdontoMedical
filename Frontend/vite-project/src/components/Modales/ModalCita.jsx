@@ -12,13 +12,21 @@ export function ModalEditarCita({
   doctoras = [],
   consultorios = []
 }) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const payload = {
+      ...formData
+    };
+    onSubmit(payload);
+  };
+
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
         <Modal.Title>{editingCita ? 'Editar Cita' : 'Crear Cita'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={onSubmit}>
+        <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Documento Cliente</Form.Label>
             <Form.Control
@@ -73,7 +81,9 @@ export function ModalEditarCita({
             >
               <option value="">Seleccione una doctora</option>
               {doctoras.map(doc => (
-                <option key={doc._id} value={doc._id}>{doc.Nombres} {doc.Apellidos}</option>
+                 <option key={doc._id} value={doc._id}>
+                  {doc.Nombres} {doc.Apellidos} {doc.Cargo?.nombre ? `- ${doc.Cargo.nombre}` : ''}
+                </option>
               ))}
             </Form.Select>
           </Form.Group>

@@ -38,7 +38,8 @@ const swaggerDocs = (app, port) => {
       "./src/routes/rutasOdoConsultorios.js", 
       "./src/routes/rutasOdoDoctora.js",
       "./src/routes/rutasOdoCitas.js",
-      "./src/routes/rutasOdoLogin.js"
+      "./src/routes/rutasOdoLogin.js",
+      "./src/routes/rutasOdoCargo.js"
     ]
   };
 

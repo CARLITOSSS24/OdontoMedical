@@ -61,14 +61,18 @@ const ModalAgendarCitaPaciente = ({
 
   // Filtrar doctoras según el servicio seleccionado
   const esOrtodoncia = servicio && (servicio.Nombre === 'Ortodoncia' || servicio.nombre === 'Ortodoncia');
-  const doctorasFiltradas = doctoras.filter(doc => {
-    const cargo = (doc.Cargo || '').toLowerCase();
+  let doctorasFiltradas = doctoras.filter(doc => {
+    const cargoNombre = (doc.Cargo?.nombre || '').toLowerCase();
     if (esOrtodoncia) {
-      return cargo.includes('ortodoncista');
+      return cargoNombre.includes('ortodoncista');
     } else {
-      return cargo.includes('odontóloga') || cargo.includes('odontologa');
+      return cargoNombre.includes('odontóloga') || cargoNombre.includes('odontologa') || cargoNombre.includes('doctora') || cargoNombre.includes('doctor');
     }
   });
+  // Si el filtro no encontró ninguna, mostrar todas
+  if (doctorasFiltradas.length === 0) {
+    doctorasFiltradas = doctoras;
+  }
 
   // Filtrar consultorios según la doctora seleccionada
   const consultoriosFiltrados = doctoras.length && form.doctora

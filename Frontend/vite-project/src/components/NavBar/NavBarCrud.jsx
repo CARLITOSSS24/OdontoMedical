@@ -29,13 +29,9 @@ const getMenuItems = (rol) => {
   }
   if (rol === "DOCTORA") {
     return [
-      { path: '/doctora/usuarios', label: 'Usuarios', icon: <FaUser className="me-2" /> },
-      { path: '/doctora/permisos', label: 'Permisos', icon: <FaKey className="me-2" /> },
-      { path: '/doctora/servicios', label: 'Servicios', icon: <FaConciergeBell className="me-2" /> },
-      { path: '/doctora/citas', label: 'Citas', icon: <FaCalendarAlt className="me-2" /> },
+      { path: '/doctora/citas', label: 'Todas las Citas', icon: <FaCalendarAlt className="me-2" /> },
+      { path: '/doctora/mis-citas', label: 'Mis Citas', icon: <FaCalendarAlt className="me-2" /> },
       { path: '/doctora/historiales', label: 'Historiales', icon: <FaHistory className="me-2" /> },
-      { path: '/doctora/consultorios', label: 'Consultorios', icon: <FaClinicMedical className="me-2" /> },
-      { path: '/doctora/doctores', label: 'Doctores', icon: <FaUserMd className="me-2" /> },
     ];
   }
   // RECEPCIONISTA

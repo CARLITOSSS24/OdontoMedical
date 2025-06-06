@@ -105,15 +105,17 @@ const AgendarCitas = () => {
             </Col>
           ))}
         </Row>
-        <ModalAgendarCitaPaciente
-          show={showModal}
-          onHide={() => setShowModal(false)}
-          servicio={servicioSeleccionado}
-          user={user}
-          doctoras={doctoras}
-          consultorios={consultorios}
-          onCitaAgendada={handleCitaAgendada}
-        />
+        {servicioSeleccionado && (
+          <ModalAgendarCitaPaciente
+            show={showModal}
+            onHide={() => setShowModal(false)}
+            servicio={servicioSeleccionado}
+            user={user}
+            doctoras={doctoras}
+            consultorios={consultorios}
+            onCitaAgendada={handleCitaAgendada}
+          />
+        )}
       </div>
       <Footer />
     </>

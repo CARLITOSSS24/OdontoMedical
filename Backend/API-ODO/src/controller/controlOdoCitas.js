@@ -13,14 +13,15 @@ export const createCita = async (req, resp) => {
     if (existe) {
       return resp.status(409).json({ message: "Ya existe una cita para ese servicio, fecha, hora y doctora." });
     }
-    // Obtener info de doctora y servicio
-    const doc = await Doctora.findById(doctora);
+    // Obtener info de doctora y servicio, con populate de cargo
+    const doc = await Doctora.findById(doctora).populate('cargo');
     const serv = await Servicios.findById(servicios);
     if (!doc || !serv) {
       return resp.status(400).json({ message: "Doctora o servicio no válido." });
     }
-    const cargo = doc.Cargo?.toLowerCase();
-    const nombreServicio = serv.Nombre?.toLowerCase();
+    // Asegura que cargo y nombreServicio sean strings
+    const cargo = doc?.cargo?.nombre ? doc.cargo.nombre.toLowerCase() : "";
+    const nombreServicio = serv?.Nombre ? serv.Nombre.toLowerCase() : "";
     const fechaMoment = moment(fecha);
     const day = fechaMoment.day(); // 0=domingo, 6=sábado
     const [horaStr, minStr] = hora.split(":");
@@ -73,7 +74,8 @@ export const createCita = async (req, resp) => {
         }
       }
     }
-    const cita = new CitaSchema(req.body);
+    // Crear la cita ignorando el campo cargo del frontend
+    const cita = new CitaSchema({ ...req.body, cargo: undefined });
     const data = await cita.save();
     resp.status(201).json({ message: "Cita creada exitosamente", data });
   } catch (error) {
@@ -83,10 +85,18 @@ export const createCita = async (req, resp) => {
 
 export const getCitas = async (req, resp) => {
   try {
-    const data = await CitaSchema.find()
-      .populate("servicios", "nombre") // Solo traemos el campo 'nombre' del servicio
-      .populate("doctora", "nombre apellido") // Traemos nombre y apellido de la doctora
-      .populate("consultorio", "nombre ubicacion"); // Traemos nombre y ubicación del consultorio
+    const { doctoraId } = req.query; // Obtener el ID de la doctora de los query params
+    
+    let query = {};
+    if (doctoraId) {
+      query.doctora = doctoraId;
+    }
+
+    const data = await CitaSchema.find(query)
+      .populate("servicios", "Nombre")
+      .populate("doctora", "Nombres Apellidos")
+      .populate("consultorio", "Nombre_consultorio");
+    
     resp.status(200).json({ message: "Citas obtenidas exitosamente", data });
   } catch (error) {
     resp.status(500).json({ message: "Error al obtener las citas", error: error.message });

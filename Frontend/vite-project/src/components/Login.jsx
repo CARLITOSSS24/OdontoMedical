@@ -24,11 +24,14 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/login", { Correo: correo, Clave: clave });
-      const { token } = res.data;
+      const res = await axios.post("http://localhost:5000/api/login", {
+        Correo: correo,
+        Clave: clave
+      });
 
+      const { token } = res.data;
       if (!token) {
-        setError("Token no recibido.");
+        setError("Credenciales incorrectas.");
         return;
       }
 
@@ -38,12 +41,13 @@ const Login = () => {
       login(token);
 
       if (rol === "ADMIN") navigate("/admin/usuarios");
-      else if (rol === "DOCTORA") navigate("/doctora/usuarios");
+      else if (rol === "DOCTORA") navigate("/doctora/citas");
       else if (rol === "RECEPCIONISTA") navigate("/recepcionista/usuarios");
       else if (rol === "PACIENTE") navigate("/perfil");
       else navigate("/unauthorized");
     } catch (err) {
       setError("Credenciales incorrectas o error de servidor.");
+      console.error("Error de login:", err);
     }
   };
 

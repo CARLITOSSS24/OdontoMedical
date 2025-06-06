@@ -95,7 +95,16 @@ const TablaCitas = () => {
         setLoading(true);
         try {
             const response = await api.get(API_URL);
-            setCitas(response.data.data || response.data || []);
+            let citasData = response.data.data || response.data || [];
+            
+            // Si el usuario es una doctora, filtrar solo sus citas
+            if (userRol === 'DOCTORA') {
+                citasData = citasData.filter(cita => 
+                    cita.doctora?._id === user._id || cita.doctora === user._id
+                );
+            }
+            
+            setCitas(citasData);
             setError(null);
         } catch (error) {
             setError('Error al cargar las citas');

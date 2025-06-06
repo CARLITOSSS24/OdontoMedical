@@ -7,6 +7,7 @@ import TablaConsultorios from './components/TablaConsultorios';
 import TablaDoctores from './components/TablaDoctores';
 import TablaCitas from './components/TablaCitas';
 import TablaHistoriales from './components/TablaHistoriales';
+import MiCitasDoctores from './components/MiCitasDoctores';
 import Login from './components/Login';
 import Register from './components/Register';
 import HomePage from './pages/HomePage';
@@ -60,26 +61,15 @@ const App = () => {
         } />
 
         {/* Rutas para DOCTORA (antes JEFE, también puede acceder un ADMIN) */}
-        <Route path="/doctora/usuarios" element={
-          <PrivateRoute roles={["DOCTORA", "ADMIN"]}><TablaUsuarios /></PrivateRoute>
-        } />
-        <Route path="/doctora/permisos" element={
-          <PrivateRoute roles={["DOCTORA", "ADMIN"]}><TablaPermisos /></PrivateRoute>
-        } />
-        <Route path="/doctora/servicios" element={
-          <PrivateRoute roles={["DOCTORA", "ADMIN"]}><TablaServicios /></PrivateRoute>
-        } />
+        {/* Solo permitir citas e historiales para DOCTORA */}
         <Route path="/doctora/historiales" element={
           <PrivateRoute roles={["DOCTORA", "ADMIN"]}><TablaHistoriales /></PrivateRoute>
         } />
-        <Route path="/doctora/consultorios" element={
-          <PrivateRoute roles={["DOCTORA", "ADMIN"]}><TablaConsultorios /></PrivateRoute>
-        } />
-        <Route path="/doctora/doctores" element={
-          <PrivateRoute roles={["DOCTORA", "ADMIN"]}><TablaDoctores /></PrivateRoute>
-        } />
         <Route path="/doctora/citas" element={
           <PrivateRoute roles={["DOCTORA", "ADMIN"]}><TablaCitas /></PrivateRoute>
+        } />
+        <Route path="/doctora/mis-citas" element={
+          <PrivateRoute roles={["DOCTORA", "ADMIN"]}><MiCitasDoctores /></PrivateRoute>
         } />
 
         {/* Rutas para RECEPCIONISTA (también puede acceder un DOCTORA o ADMIN) */}

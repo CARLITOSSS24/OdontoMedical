@@ -1,19 +1,27 @@
 import doctoraSchema from "../models/modelOdoDoctora.js";
 import { validatorHandler } from "../middleware/validator.handler.js";
 import {
-  CreateDoctoraSchema,
-  UpdateDoctoraSchema,
-  BuscarDoctoraIDSchema,
-  DeleteDoctoraSchema,
+  createDoctoraSchema,
+  updateDoctoraSchema,
+  buscarDoctoraIDSchema,
+  deleteDoctoraSchema,
 } from "../validators/validatorOdoDoctora.js";
+import bcrypt from "bcryptjs";
 
 export const CreateDoctora = [
-  validatorHandler(CreateDoctoraSchema, "body"),
+  validatorHandler(createDoctoraSchema, "body"),
   async (req, res) => {
     try {
+      console.log("Clave recibida:", req.body.Clave);
+      if (req.body.Clave) {
+        req.body.Clave = await bcrypt.hash(req.body.Clave, 10);
+        console.log("Clave hasheada:", req.body.Clave);
+      }
       const doctora = new doctoraSchema(req.body);
       const data = await doctora.save();
-      res.status(201).json(data); 
+      const populated = await doctoraSchema.findById(data._id).populate('cargo');
+      const { Clave, ...rest } = populated.toObject();
+      res.status(201).json(rest); 
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -22,23 +30,34 @@ export const CreateDoctora = [
 
 export const BuscarDoctora = async (req, res) => {
   try {
-    const data = await doctoraSchema.find().populate('Id_consultorio');
-    res.json(data); 
+    const data = await doctoraSchema.find()
+      .populate('Id_consultorio')
+      .populate('Permiso')
+      .populate('cargo');
+    const doctoraData = data.map(doc => {
+      const { Clave, ...rest } = doc.toObject();
+      return rest;
+    });
+    res.json(doctoraData); 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 export const BuscarDoctoraID = [
-  validatorHandler(BuscarDoctoraIDSchema, "params"),
+  validatorHandler(buscarDoctoraIDSchema, "params"),
   async (req, res) => {
     const { _id } = req.params; 
     try {
-      const doctora = await doctoraSchema.findById(_id); 
+      const doctora = await doctoraSchema.findById(_id)
+        .populate('Id_consultorio')
+        .populate('Permiso')
+        .populate('cargo'); 
       if (!doctora) {
         return res.status(404).json({ message: "Doctora no encontrada" }); 
       }
-      res.json(doctora); 
+      const { Clave, ...rest } = doctora.toObject();
+      res.json(rest); 
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -46,23 +65,29 @@ export const BuscarDoctoraID = [
 ];
 
 export const UpdateDoctora = [
-  validatorHandler(BuscarDoctoraIDSchema, "params"),
-  validatorHandler(UpdateDoctoraSchema, "body"),
+  validatorHandler(buscarDoctoraIDSchema, "params"),
+  validatorHandler(updateDoctoraSchema, "body"),
   async (req, res) => {
     const { _id } = req.params; 
-    const { Nombres, Apellidos, Cargo, Id_consultorio } = req.body; 
+    const updateFields = { ...req.body };
     try {
-      const doctoraUpdate = await doctoraSchema.updateOne(
-        { _id }, 
-        { $set: { Nombres, Apellidos, Cargo, Id_consultorio } } 
-      );
-      if (doctoraUpdate.matchedCount === 0) {
+      console.log("Clave recibida para update:", updateFields.Clave);
+      if (updateFields.Clave) {
+        updateFields.Clave = await bcrypt.hash(updateFields.Clave, 10);
+        console.log("Clave hasheada para update:", updateFields.Clave);
+      }
+      const doctoraUpdate = await doctoraSchema.findByIdAndUpdate(
+        _id, 
+        { $set: updateFields },
+        { new: true }
+      ).populate('cargo');
+      if (!doctoraUpdate) {
         return res.status(404).json({ message: "Doctora no encontrada" }); 
       }
       if (doctoraUpdate.modifiedCount === 0) {
         return res.status(400).json({ message: "No se realizaron cambios en la doctora" }); 
       }
-      res.status(200).json({ message: "Doctora actualizada correctamente" });
+      res.status(200).json({ message: "Doctora actualizada correctamente", data: doctoraUpdate });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -70,7 +95,7 @@ export const UpdateDoctora = [
 ];
 
 export const DeleteDoctora = [
-  validatorHandler(DeleteDoctoraSchema, "params"),
+  validatorHandler(deleteDoctoraSchema, "params"),
   async (req, res) => {
     const { _id } = req.params; 
     try {
