@@ -6,6 +6,9 @@ import userSchema from '../models/modelOdoUser.js';
 import doctoraSchema from '../models/modelOdoDoctora.js';
 import permisosSchema from '../models/modelOdoPermisos.js';  
 import { loginSchema } from '../validators/validatorOdoLogin.js';
+import Usuario from '../models/modelOdoUser.js';
+import crypto from 'crypto';
+import { validationResult } from 'express-validator';
 
 const router = express.Router();
 

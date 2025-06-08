@@ -1,5 +1,45 @@
 import mongoose from 'mongoose';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Usuario:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         Nombre:
+ *           type: string
+ *         Apellido:
+ *           type: string
+ *         Tipo_Doc:
+ *           type: string
+ *           enum: [RC, TI, CC, TE, CE, NIT, PP, PEP, DIE, PA]
+ *         Doc_identificacion:
+ *           type: string
+ *         Telefono:
+ *           type: number
+ *         Correo:
+ *           type: string
+ *         Clave:
+ *           type: string
+ *         Permiso:
+ *           type: string
+ *         Genero:
+ *           type: string
+ *           enum: [Masculino, Femenino, Otro]
+ *         Edad:
+ *           type: number
+ *         resetPasswordCode:
+ *           type: string
+ *           nullable: true
+ *         resetPasswordExpires:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ */
+
 const usuarioSchema = mongoose.Schema({
   Nombre: {
     type: String, 
@@ -69,6 +109,34 @@ const usuarioSchema = mongoose.Schema({
     required: [true, 'La edad es obligatoria'],
     min: [0, 'La edad no puede ser negativa'],
     max: [120, 'La edad no puede ser mayor a 120'],
+  },
+  resetPasswordCode: {
+    type: String,
+    default: null
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null
+  },
+  resetPasswordAttempts: {
+    type: Number,
+    default: 0
+  },
+  resetPasswordBlockedUntil: {
+    type: Date,
+    default: null
+  },
+  emailVerificationCode: {
+    type: String,
+    default: null
+  },
+  emailVerificationExpires: {
+    type: Date,
+    default: null
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true, 

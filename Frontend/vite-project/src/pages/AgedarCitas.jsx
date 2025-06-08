@@ -49,17 +49,11 @@ const AgendarCitas = () => {
     setShowModal(true);
   };
 
-  const handleCitaAgendada = async (citaData) => {
+  const handleCitaAgendada = () => {
     setError(null);
-    setSuccess(null);
-    try {
-      await api.post('/citas', citaData);
-      setSuccess('Cita agendada correctamente.');
-      setShowModal(false);
-      setTimeout(() => navigate('/mis-citas'), 1200);
-    } catch {
-      setError('No se pudo agendar la cita.');
-    }
+    setSuccess('Cita agendada correctamente.');
+    setShowModal(false);
+    setTimeout(() => navigate('/mis-citas'), 1200);
   };
 
   // Mapeo de íconos por servicio

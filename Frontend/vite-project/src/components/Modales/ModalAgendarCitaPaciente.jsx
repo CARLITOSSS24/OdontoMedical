@@ -26,6 +26,7 @@ const ModalAgendarCitaPaciente = ({
   const [loadingDatos, setLoadingDatos] = useState(false);
   const [horasDisponibles, setHorasDisponibles] = useState([]);
   const [fechaInvalida, setFechaInvalida] = useState(false);
+  const [success, setSuccess] = useState(null);
 
   // Autocompletar datos del usuario si el checkbox está marcado
   useEffect(() => {
@@ -62,9 +63,9 @@ const ModalAgendarCitaPaciente = ({
   // Filtrar doctoras según el servicio seleccionado
   const esOrtodoncia = servicio && (servicio.Nombre === 'Ortodoncia' || servicio.nombre === 'Ortodoncia');
   let doctorasFiltradas = doctoras.filter(doc => {
-    const cargoNombre = (doc.Cargo?.nombre || '').toLowerCase();
+    const cargoNombre = (doc.cargo?.nombre || '').toLowerCase();
     if (esOrtodoncia) {
-      return cargoNombre.includes('ortodoncista');
+      return cargoNombre.includes('ortodoncista') || cargoNombre.includes('ortodoncia');
     } else {
       return cargoNombre.includes('odontóloga') || cargoNombre.includes('odontologa') || cargoNombre.includes('doctora') || cargoNombre.includes('doctor');
     }
@@ -73,6 +74,10 @@ const ModalAgendarCitaPaciente = ({
   if (doctorasFiltradas.length === 0) {
     doctorasFiltradas = doctoras;
   }
+  // LOG para depuración de doctorasFiltradas
+  console.log('doctorasFiltradas:', doctorasFiltradas);
+  // LOG para depuración de form.doctora
+  console.log('form.doctora:', form.doctora);
 
   // Filtrar consultorios según la doctora seleccionada
   const consultoriosFiltrados = doctoras.length && form.doctora
@@ -166,11 +171,13 @@ const ModalAgendarCitaPaciente = ({
   const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     if (!form.doctora || !form.consultorio || !form.fecha || !form.hora || !form.documentoCliente || !form.nombreCliente || !form.apellidoCliente) {
       setError('Todos los campos son obligatorios.');
       return;
     }
-    onCitaAgendada({
+    // LOG para depuración del payload
+    const payload = {
       servicios: servicio._id,
       doctora: form.doctora,
       consultorio: form.consultorio,
@@ -179,7 +186,34 @@ const ModalAgendarCitaPaciente = ({
       documentoCliente: form.documentoCliente,
       nombreCliente: form.nombreCliente,
       apellidoCliente: form.apellidoCliente
-    });
+    };
+    console.log('Payload enviado al backend:', payload);
+    try {
+      const res = await api.post('/citas', payload);
+      if (res.status === 201) {
+        setError(null); // Limpia cualquier error anterior
+        setSuccess('¡Cita agendada exitosamente!');
+        setTimeout(() => {
+          setSuccess(null);
+          setForm({
+            doctora: '',
+            consultorio: '',
+            fecha: '',
+            hora: '',
+            documentoCliente: '',
+            nombreCliente: '',
+            apellidoCliente: ''
+          });
+          onCitaAgendada();
+          onHide();
+        }, 2000);
+      } else {
+        setError(res.data?.message || 'Error inesperado al agendar la cita');
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error al agendar la cita';
+      setError(msg);
+    }
   };
 
   return (
@@ -189,6 +223,7 @@ const ModalAgendarCitaPaciente = ({
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
+          {success && <Alert variant="success">{success}</Alert>}
           {error && <Alert variant="danger">{error}</Alert>}
           <Form.Group className="mb-3">
             <Form.Check

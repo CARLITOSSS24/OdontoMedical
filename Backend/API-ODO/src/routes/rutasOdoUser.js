@@ -4,7 +4,8 @@ import {
     borrarUsu, 
     crearusuario, 
     llamarUsuarios, 
-    llamarUsuId 
+    llamarUsuId,
+    verificarCorreo
 } from "../controller/controlOdoUser.js";
 import { allowPublic, verifyJWT, verifyRole } from "../config/middlewareOdoAutenticacion.js";
 
@@ -217,5 +218,8 @@ modelOdoUsers.patch("/users/:_id",verifyJWT,verifyRole(['ADMIN', 'DOCTORA', 'PAC
  *         description: Usuario no encontrado
  */
 modelOdoUsers.delete("/users/:_id", verifyJWT, verifyRole(['ADMIN', 'DOCTORA']), borrarUsu);
+
+// Ruta para verificación de correo
+modelOdoUsers.post("/users/verificar-correo", allowPublic, verificarCorreo);
 
 export default modelOdoUsers;

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { Modal, Button } from 'react-bootstrap';
 
 const palette = {
   primary: '#556f70',
@@ -19,6 +20,15 @@ const Login = () => {
   const [error, setError] = useState("");
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [showRecuperar, setShowRecuperar] = useState(false);
+  const [recCorreo, setRecCorreo] = useState("");
+  const [recStep, setRecStep] = useState(1); // 1: pedir correo, 2: pedir código y nueva clave
+  const [recCodigo, setRecCodigo] = useState("");
+  const [recNuevaClave, setRecNuevaClave] = useState("");
+  const [recError, setRecError] = useState("");
+  const [recSuccess, setRecSuccess] = useState("");
+  const [recLoading, setRecLoading] = useState(false);
+  const [recDocumento, setRecDocumento] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +51,7 @@ const Login = () => {
       login(token);
 
       if (rol === "ADMIN") navigate("/admin/usuarios");
-      else if (rol === "DOCTORA") navigate("/doctora/citas");
+      else if (rol === "DOCTORA") navigate("/doctora/mis-citas");
       else if (rol === "RECEPCIONISTA") navigate("/recepcionista/usuarios");
       else if (rol === "PACIENTE") navigate("/perfil");
       else navigate("/unauthorized");
@@ -49,6 +59,48 @@ const Login = () => {
       setError("Credenciales incorrectas o error de servidor.");
       console.error("Error de login:", err);
     }
+  };
+
+  const handleRecuperar = async (e) => {
+    e.preventDefault();
+    setRecError("");
+    setRecSuccess("");
+    setRecLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/login/solicitar-codigo", { correo: recCorreo, documento: recDocumento });
+      setRecStep(2);
+      setRecSuccess("Código enviado al correo. Revisa tu bandeja de entrada.");
+    } catch (err) {
+      setRecError(err.response?.data?.mensaje || "Error al enviar el código");
+    }
+    setRecLoading(false);
+  };
+
+  const handleRestablecer = async (e) => {
+    e.preventDefault();
+    setRecError("");
+    setRecSuccess("");
+    setRecLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/login/restablecer-contrasena", {
+        correo: recCorreo,
+        codigo: recCodigo,
+        nuevaClave: recNuevaClave
+      });
+      setRecSuccess("¡Contraseña restablecida! Ya puedes iniciar sesión.");
+      setTimeout(() => {
+        setShowRecuperar(false);
+        setRecStep(1);
+        setRecCorreo("");
+        setRecCodigo("");
+        setRecNuevaClave("");
+        setRecError("");
+        setRecSuccess("");
+      }, 2000);
+    } catch (err) {
+      setRecError(err.response?.data?.mensaje || "Error al restablecer contraseña");
+    }
+    setRecLoading(false);
   };
 
   return (
@@ -143,6 +195,83 @@ const Login = () => {
           Ingresar
         </button>
       </form>
+      <div className="mt-3 text-center">
+        <button
+          type="button"
+          className="btn btn-link p-0"
+          style={{ color: palette.primary, fontWeight: 500, textDecoration: 'underline', fontSize: 15 }}
+          onClick={() => setShowRecuperar(true)}
+        >
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
+      {/* Modal de recuperación */}
+      <Modal show={showRecuperar} onHide={() => { setShowRecuperar(false); setRecStep(1); setRecError(""); setRecSuccess(""); }} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Recuperar Contraseña</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {recStep === 1 && (
+            <form onSubmit={handleRecuperar}>
+              <div className="mb-3">
+                <label>Correo electrónico</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  value={recCorreo}
+                  onChange={e => setRecCorreo(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label>Documento de identificación</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={recDocumento}
+                  onChange={e => setRecDocumento(e.target.value)}
+                  required
+                />
+              </div>
+              {recError && <div className="alert alert-danger">{recError}</div>}
+              {recSuccess && <div className="alert alert-success">{recSuccess}</div>}
+              <Button type="submit" variant="primary" disabled={recLoading} className="w-100">
+                {recLoading ? 'Enviando...' : 'Enviar código'}
+              </Button>
+            </form>
+          )}
+          {recStep === 2 && (
+            <form onSubmit={handleRestablecer}>
+              <div className="mb-3">
+                <label>Código recibido</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={recCodigo}
+                  onChange={e => setRecCodigo(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label>Nueva contraseña</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  value={recNuevaClave}
+                  onChange={e => setRecNuevaClave(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </div>
+              {recError && <div className="alert alert-danger">{recError}</div>}
+              {recSuccess && <div className="alert alert-success">{recSuccess}</div>}
+              <Button type="submit" variant="success" disabled={recLoading} className="w-100">
+                {recLoading ? 'Restableciendo...' : 'Restablecer contraseña'}
+              </Button>
+            </form>
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

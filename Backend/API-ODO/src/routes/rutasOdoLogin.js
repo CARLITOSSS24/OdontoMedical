@@ -1,5 +1,11 @@
 import express from "express";
 import Login from "../controller/controlOdoLogin.js";
+import {
+  solicitarCodigo,
+  verificarCodigo,
+  restablecerPassword,
+  cancelarSolicitud
+} from "../controller/controlOdoPassword.js";
 
 const router = express.Router();
 
@@ -75,5 +81,11 @@ const router = express.Router();
  *               message: "Error en el servidor."
  */
 router.post("/login", Login);
+
+// Recuperación de contraseña
+router.post("/login/solicitar-codigo", solicitarCodigo);
+router.post("/login/verificar-codigo", verificarCodigo);
+router.post("/login/restablecer-contrasena", restablecerPassword);
+router.post("/login/cancelar-solicitud", cancelarSolicitud);
 
 export default router;

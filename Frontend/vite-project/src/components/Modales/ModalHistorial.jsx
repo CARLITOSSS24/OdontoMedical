@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Modal, Button, Form, Table } from 'react-bootstrap';
 import api from '../../API/axiosInstance';
 
-export const ModalCrearHistorial = ({ show, onHide, pacientes, doctoras, onHistorialCreado }) => {
-  const [form, setForm] = useState({ paciente: '', responsable_creacion: '', observaciones_generales: '' });
+export const ModalCrearHistorial = ({ show, onHide, pacientes, doctoras, onHistorialCreado, extraCheckbox }) => {
+  const [form, setForm] = useState({ paciente: '', responsable_creacion: '', observaciones_generales: '', correo: '', telefono: '' });
   const [error, setError] = useState(null);
   const [busquedaPaciente, setBusquedaPaciente] = useState('');
+
   const pacientesFiltrados = pacientes.filter(p =>
     (p.Nombre + ' ' + p.Apellido).toLowerCase().includes(busquedaPaciente.toLowerCase()) ||
     p.Doc_identificacion?.toLowerCase().includes(busquedaPaciente.toLowerCase())
@@ -19,7 +20,7 @@ export const ModalCrearHistorial = ({ show, onHide, pacientes, doctoras, onHisto
     try {
       const { data } = await api.post('/historiales', form);
       onHistorialCreado(data);
-      setForm({ paciente: '', responsable_creacion: '', observaciones_generales: '' });
+      setForm({ paciente: '', responsable_creacion: '', observaciones_generales: '', correo: '', telefono: '' });
       onHide();
     } catch (err) {
       setError(err.response?.data?.mensaje || 'Error al crear historial');
@@ -34,6 +35,15 @@ export const ModalCrearHistorial = ({ show, onHide, pacientes, doctoras, onHisto
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           {error && <div className="alert alert-danger">{error}</div>}
+          {extraCheckbox && (
+            <Form.Check
+              type="checkbox"
+              className="mb-3"
+              label={extraCheckbox.label}
+              checked={extraCheckbox.checked}
+              onChange={extraCheckbox.onChange}
+            />
+          )}
           <Form.Group className="mb-3">
             <Form.Label>Buscar paciente</Form.Label>
             <Form.Control
@@ -58,6 +68,14 @@ export const ModalCrearHistorial = ({ show, onHide, pacientes, doctoras, onHisto
                 <option key={d._id} value={d._id}>{d.Nombres} {d.Apellidos}</option>
               ))}
             </Form.Select>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Correo del paciente</Form.Label>
+            <Form.Control name="correo" value={form.correo} onChange={handleChange} disabled />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Teléfono del paciente</Form.Label>
+            <Form.Control name="telefono" value={form.telefono} onChange={handleChange} disabled />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Observaciones generales</Form.Label>

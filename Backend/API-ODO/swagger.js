@@ -31,15 +31,16 @@ const swaggerDocs = (app, port) => {
       ]
     },
     apis: [ 
+      "./src/routes/rutasOdoLogin.js",
+      "./src/routes/rutasOdoPassword.js",
       "./src/routes/rutasOdoUser.js",       
       "./src/routes/rutasOdoPermisos.js", 
       "./src/routes/rutasOdoServicios.js",  
       "./src/routes/rutasOdoHistoriales.js", 
-      "./src/routes/rutasOdoConsultorios.js", 
       "./src/routes/rutasOdoDoctora.js",
-      "./src/routes/rutasOdoCitas.js",
-      "./src/routes/rutasOdoLogin.js",
-      "./src/routes/rutasOdoCargo.js"
+      "./src/routes/rutasOdoCargo.js",
+      "./src/routes/rutasOdoConsultorios.js", 
+      "./src/routes/rutasOdoCitas.js"   
     ]
   };
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../API/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Alert } from 'react-bootstrap';
+import axios from 'axios';
 
 const palette = {
   primary: '#556f70',
@@ -47,6 +48,12 @@ const Register = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [error, setError] = useState(null);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationCorreo, setVerificationCorreo] = useState('');
+  const [verificationError, setVerificationError] = useState('');
+  const [verificationSuccess, setVerificationSuccess] = useState('');
+  const [verificationLoading, setVerificationLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -84,12 +91,77 @@ const Register = () => {
         Telefono: Number(formData.Telefono),
         Edad: Number(formData.Edad),
       };
-      await api.post('/users', dataToSend);
-      navigate('/login');
+      const res = await api.post('/users', dataToSend);
+      setVerificationCorreo(res.data.correo);
+      setShowVerification(true);
+      setVerificationSuccess('Se envió un código de verificación a tu correo.');
     } catch (err) {
       setError('Error al registrar. Intenta con otro correo o revisa los datos.');
     }
   };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setVerificationError('');
+    setVerificationSuccess('');
+    setVerificationLoading(true);
+    try {
+      await axios.post('http://localhost:5000/api/users/verificar-correo', {
+        correo: verificationCorreo,
+        codigo: verificationCode
+      });
+      setVerificationSuccess('¡Correo verificado! Ahora puedes iniciar sesión.');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (err) {
+      setVerificationError(err.response?.data?.message || 'Error al verificar el código');
+    }
+    setVerificationLoading(false);
+  };
+
+  if (showVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-teal-100">
+        <div className="w-full max-w-sm bg-white/95 p-6 rounded-3xl shadow-xl border border-indigo-100 flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center mb-2 w-full">
+            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 mb-2 shadow">
+              <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-indigo-500">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12H8m8 0a4 4 0 11-8 0 4 4 0 018 0zm0 0v1a4 4 0 01-8 0v-1m8 0V7a4 4 0 00-8 0v5" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-extrabold text-center text-indigo-700 font-sans w-full">Verifica tu correo</h2>
+          </div>
+          <p className="mb-3 text-center text-gray-600 text-base font-medium w-full">Ingresa el código que recibiste en tu correo electrónico para activar tu cuenta.</p>
+          <form onSubmit={handleVerify} className="space-y-3 w-full flex flex-col items-center justify-center">
+            <input
+              type="text"
+              className="w-36 py-2 px-3 text-center text-xl tracking-widest border-2 border-indigo-200 rounded-full focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 bg-indigo-50 placeholder-gray-400 font-bold shadow-sm transition mb-1"
+              placeholder="Código"
+              value={verificationCode}
+              onChange={e => setVerificationCode(e.target.value)}
+              required
+              maxLength={5}
+              style={{ letterSpacing: 10, fontWeight: 700, fontFamily: 'monospace' }}
+            />
+            {verificationError && <div className="w-full rounded-full bg-red-100 text-red-700 text-center text-xs font-semibold py-1 px-2 mb-1 shadow">{verificationError}</div>}
+            {verificationSuccess && <div className="w-full rounded-full bg-green-100 text-green-700 text-center text-xs font-semibold py-1 px-2 mb-1 shadow">{verificationSuccess}</div>}
+            <button
+              type="submit"
+              className="w-36 py-2 px-3 bg-gradient-to-r from-[#49b6b2] to-[#556f70] hover:from-[#556f70] hover:to-[#49b6b2] text-white text-base font-bold rounded-full shadow-lg transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#49b6b2]/40 animate-pulse hover:animate-none"
+              disabled={verificationLoading}
+              style={{ boxShadow: '0 2px 12px rgba(73,182,178,0.13)' }}
+            >
+              {verificationLoading ? 'Verificando...' : 'Verificar correo'}
+            </button>
+          </form>
+          <div className="mt-3 text-center text-gray-500 text-xs font-medium w-full">
+            ¿No recibiste el código? <span className="font-semibold">Revisa tu carpeta de spam</span> o espera unos minutos.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -29,7 +29,6 @@ const getMenuItems = (rol) => {
   }
   if (rol === "DOCTORA") {
     return [
-      { path: '/doctora/citas', label: 'Todas las Citas', icon: <FaCalendarAlt className="me-2" /> },
       { path: '/doctora/mis-citas', label: 'Mis Citas', icon: <FaCalendarAlt className="me-2" /> },
       { path: '/doctora/historiales', label: 'Historiales', icon: <FaHistory className="me-2" /> },
     ];

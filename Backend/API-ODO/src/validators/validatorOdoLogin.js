@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { body } from 'express-validator';
 
 const loginSchema = Joi.object({
   Correo: Joi.string()

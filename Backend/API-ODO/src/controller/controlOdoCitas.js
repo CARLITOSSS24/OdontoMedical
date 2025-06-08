@@ -13,11 +13,16 @@ export const createCita = async (req, resp) => {
     if (existe) {
       return resp.status(409).json({ message: "Ya existe una cita para ese servicio, fecha, hora y doctora." });
     }
-    // Obtener info de doctora y servicio, con populate de cargo
+    console.log("Payload recibido:", req.body);
     const doc = await Doctora.findById(doctora).populate('cargo');
     const serv = await Servicios.findById(servicios);
-    if (!doc || !serv) {
-      return resp.status(400).json({ message: "Doctora o servicio no válido." });
+    console.log("Doctora encontrada:", doc);
+    console.log("Servicio encontrado:", serv);
+    if (!doc) {
+      return resp.status(400).json({ message: "Doctora no válida o no encontrada." });
+    }
+    if (!serv) {
+      return resp.status(400).json({ message: "Servicio no válido o no encontrado." });
     }
     // Asegura que cargo y nombreServicio sean strings
     const cargo = doc?.cargo?.nombre ? doc.cargo.nombre.toLowerCase() : "";
@@ -28,8 +33,11 @@ export const createCita = async (req, resp) => {
     const horaNum = parseInt(horaStr, 10);
     // ORTODONCIA
     if (nombreServicio.includes("ortodoncia")) {
-      if (!cargo.includes("ortodoncista")) {
-        return resp.status(400).json({ message: "Solo la ortodoncista puede atender ortodoncia." });
+      if (!cargo.includes("ortodoncia")) {
+        return resp.status(400).json({ message: "Error de especialidad: Solo la doctora con especialidad en ortodoncia puede atender citas de ortodoncia." });
+      }
+      if (!cargo.includes("ortodoncista") && !cargo.includes("ortodoncia")) {
+        return resp.status(400).json({ message: "Error de especialidad: Solo la doctora ortodoncista puede atender ortodoncia." });
       }
       if (day !== 4) {
         return resp.status(400).json({ message: "Las citas de ortodoncia solo se atienden los jueves." });
@@ -43,11 +51,14 @@ export const createCita = async (req, resp) => {
       }
     } else {
       // ODONTÓLOGA GENERAL
+      if (cargo.includes("ortodoncia") || cargo.includes("ortodoncista")) {
+        return resp.status(400).json({ message: "Error de especialidad: La doctora de ortodoncia solo puede atender citas de ortodoncia." });
+      }
       if (!cargo.includes("odontóloga") && !cargo.includes("odontologa")) {
-        return resp.status(400).json({ message: "Solo la odontóloga general puede atender este servicio." });
+        return resp.status(400).json({ message: "Error de especialidad: Solo la odontóloga general puede atender este servicio." });
       }
       if (nombreServicio.includes("ortodoncia")) {
-        return resp.status(400).json({ message: "La odontóloga general no puede atender ortodoncia." });
+        return resp.status(400).json({ message: "Error de especialidad: La odontóloga general no puede atender ortodoncia." });
       }
       if (day === 0) {
         return resp.status(400).json({ message: "No se atienden citas los domingos." });
@@ -94,8 +105,16 @@ export const getCitas = async (req, resp) => {
 
     const data = await CitaSchema.find(query)
       .populate("servicios", "Nombre")
-      .populate("doctora", "Nombres Apellidos")
-      .populate("consultorio", "Nombre_consultorio");
+      .populate({
+        path: "doctora",
+        select: "Nombres Apellidos cargo",
+        populate: {
+          path: "cargo",
+          select: "nombre"
+        }
+      })
+      .populate("consultorio", "Nombre_consultorio")
+      .sort({ fecha: 1, hora: 1 }); // Ordenar por fecha y hora
     
     resp.status(200).json({ message: "Citas obtenidas exitosamente", data });
   } catch (error) {

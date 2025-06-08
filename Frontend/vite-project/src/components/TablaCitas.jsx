@@ -162,6 +162,7 @@ const TablaCitas = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
         try {
             if (editingCita) {
                 await api.patch(`${API_URL}/${editingCita._id}`, formData);
@@ -171,7 +172,8 @@ const TablaCitas = () => {
             setShowEditModal(false);
             fetchCitas();
         } catch (error) {
-            setError('Error al guardar la cita');
+            const msg = error.response?.data?.message || 'Error al guardar la cita';
+            setError(msg);
         }
     };
 
