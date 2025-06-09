@@ -30,9 +30,10 @@ const TablaCitas = () => {
 
     // Permisos por jerarquía
     const puedeVer = tienePermiso(userRol, rutaRol);
-    const puedeCrear = tienePermiso(userRol, rutaRol);
-    const puedeEditar = tienePermiso(userRol, rutaRol);
-    const puedeBorrar = userRol === "ADMIN"; // Solo ADMIN puede borrar citas
+    // Solo ADMIN y DOCTORA pueden crear, editar o borrar
+    const puedeCrear = userRol === "ADMIN" || userRol === "DOCTORA";
+    const puedeEditar = userRol === "ADMIN" || userRol === "DOCTORA";
+    const puedeBorrar = userRol === "ADMIN";
 
     // Si no puede ver, no renderiza nada
     if (!puedeVer) return <div>No tienes permisos para ver esta tabla.</div>;
@@ -344,7 +345,7 @@ const TablaCitas = () => {
                                 <th>Consultorio</th>
                                 <th>Fecha</th>
                                 <th>Hora</th>
-                                <th>Acciones</th>
+                                { (puedeEditar || puedeBorrar) && <th>Acciones</th> }
                             </tr>
                         </thead>
                         <tbody>
@@ -367,6 +368,7 @@ const TablaCitas = () => {
                                     }</td>
                                     <td>{cita.fecha ? cita.fecha.split('T')[0] : 'N/A'}</td>
                                     <td>{cita.hora || 'N/A'}</td>
+                                    { (puedeEditar || puedeBorrar) && (
                                     <td>
                                         {puedeEditar && (
                                             <Button
@@ -399,6 +401,7 @@ const TablaCitas = () => {
                                             </Button>
                                         )}
                                     </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>

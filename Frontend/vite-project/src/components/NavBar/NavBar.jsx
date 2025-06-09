@@ -17,6 +17,21 @@ const NavBar = () => {
   const navLinks = (
     <>
       <Link
+        to="/paciente/dashboard"
+        style={{
+          color: "#fff",
+          fontWeight: 700,
+          textDecoration: "none",
+          marginRight: 28,
+          fontSize: 17,
+          letterSpacing: 0.5,
+          transition: "color 0.2s",
+        }}
+        onClick={() => setMenuOpen(false)}
+      >
+        Inicio
+      </Link>
+      <Link
         to="/perfil"
         style={{
           color: "#fff",

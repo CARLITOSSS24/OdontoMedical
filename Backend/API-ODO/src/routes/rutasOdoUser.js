@@ -165,7 +165,7 @@ modelOdoUsers.get("/users", verifyJWT, verifyRole(['ADMIN', 'DOCTORA', 'RECEPCIO
  *       404:
  *         description: Usuario no encontrado
  */
-modelOdoUsers.get("/users/:_id",verifyJWT,verifyRole(['ADMIN', 'DOCTORA', 'RECEPCIONISTA', 'PACIENTE']), llamarUsuId);
+modelOdoUsers.get("/users/:_id",verifyJWT,verifyRole(['ADMIN', 'DOCTORA', 'PACIENTE']), llamarUsuId);
 
 /**
  * @swagger

@@ -1,12 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Nav } from "react-bootstrap";
-import { FaUserCog, FaTimes, FaUser, FaConciergeBell, FaKey, FaHistory, FaUserMd, FaClinicMedical, FaCalendarAlt, FaSignOutAlt } from "react-icons/fa";
-import { Button } from "react-bootstrap";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FaUserCog, FaUser, FaConciergeBell, FaKey, FaHistory, FaUserMd, FaClinicMedical, FaCalendarAlt, FaSignOutAlt } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 
-
-// Valores por defecto para el esquema de colores
 const defaultColorScheme = {
   primary: '#556f70',
   secondary: '#95bfbd',
@@ -18,140 +14,116 @@ const defaultColorScheme = {
 const getMenuItems = (rol) => {
   if (rol === "ADMIN") {
     return [
+      { path: '/admin/dashboard', label: 'Dashboard', icon: <FaUserCog className="me-2" /> },
       { path: '/admin/usuarios', label: 'Usuarios', icon: <FaUser className="me-2" /> },
-      { path: '/admin/permisos', label: 'Permisos', icon: <FaKey className="me-2" /> },
-      { path: '/admin/servicios', label: 'Servicios', icon: <FaConciergeBell className="me-2" /> },
       { path: '/admin/citas', label: 'Citas', icon: <FaCalendarAlt className="me-2" /> },
-      { path: '/admin/consultorios', label: 'Consultorios', icon: <FaClinicMedical className="me-2" /> },
+      { path: '/admin/servicios', label: 'Servicios', icon: <FaConciergeBell className="me-2" /> },
       { path: '/admin/doctores', label: 'Doctores', icon: <FaUserMd className="me-2" /> },
+      { path: '/admin/consultorios', label: 'Consultorios', icon: <FaClinicMedical className="me-2" /> },
       { path: '/admin/historiales', label: 'Historiales', icon: <FaHistory className="me-2" /> },
     ];
   }
   if (rol === "DOCTORA") {
     return [
+      { path: '/doctora/dashboard', label: 'Dashboard', icon: <FaUserCog className="me-2" /> },
       { path: '/doctora/mis-citas', label: 'Mis Citas', icon: <FaCalendarAlt className="me-2" /> },
       { path: '/doctora/historiales', label: 'Historiales', icon: <FaHistory className="me-2" /> },
     ];
   }
   // RECEPCIONISTA
   return [
-    { path: '/recepcionista/usuarios', label: 'Usuarios', icon: <FaUser className="me-2" /> },
+    { path: '/recepcionista/dashboard', label: 'Dashboard', icon: <FaUserCog className="me-2" /> },
+    { path: '/recepcionista/citas', label: 'Citas', icon: <FaCalendarAlt className="me-2" /> },
     { path: '/recepcionista/historiales', label: 'Historiales', icon: <FaHistory className="me-2" /> },
     { path: '/recepcionista/consultorios', label: 'Consultorios', icon: <FaClinicMedical className="me-2" /> },
   ];
 };
 
 const NavBarCrud = ({
-  isMobile = false,
-  sidebarOpen = true,
-  setSidebarOpen = () => {},
-  colorScheme = defaultColorScheme,
   userRol = ""
 }) => {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const menuItems = getMenuItems(userRol);
-  const [mobile, setMobile] = useState(window.innerWidth < 768);
-  const [showMenu, setShowMenu] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => setMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     logout();
-    navigate("/", { replace: true });
+    navigate("/login", { replace: true });
   };
 
-  // Menú hamburguesa para móviles
-  if (mobile) {
-    return (
-      <>
-        <div style={{
-          position: 'fixed',
-          bottom: 20,
-          left: 20,
-          zIndex: 2000
-        }}>
-          <Button
-            variant="primary"
-            style={{ borderRadius: '50%', width: 56, height: 56, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
-            onClick={() => setShowMenu(true)}
-            aria-label="Abrir menú"
-          >
-            <FaUserCog size={28} />
-          </Button>
-        </div>
-        {showMenu && (
-          <div className="menu-overlay" onClick={() => setShowMenu(false)}>
-            <div
-              className="mobile-menu sidebar"
-              onClick={e => e.stopPropagation()}
-            >
-              <button className="close-btn" onClick={() => setShowMenu(false)}>
-                <FaTimes />
-              </button>
-              <div>
-                <div className="navbar-brand">
-                  <FaUserCog className="me-2" size={24} />
-                  Panel de Control
-                </div>
-                <Nav variant="pills" className="flex-column nav">
-                  {menuItems.map((item) => (
-                    <Nav.Item key={item.path}>
-                      <Nav.Link
-                        as={Link}
-                        to={item.path}
-                        className="nav-link"
-                        onClick={() => setShowMenu(false)}
-                      >
-                        {item.icon}
-                        {item.label}
-                      </Nav.Link>
-                    </Nav.Item>
-                  ))}
-                </Nav>
-              </div>
-              <Button className="btn" onClick={handleLogout}>
-                <FaSignOutAlt className="me-2" />
-                Cerrar sesión
-              </Button>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }
-
   return (
-    <div className="sidebar">
-      <div>
-        <div className="navbar-brand">
-          <FaUserCog className="me-2" size={24} />
-          Panel de Control
-        </div>
-        <Nav variant="pills" className="flex-column nav">
-          {menuItems.map((item) => (
-            <Nav.Item key={item.path}>
-              <Nav.Link
-                as={Link}
-                to={item.path}
-                className="nav-link"
-                active={location.pathname === item.path}
-              >
-                {item.icon}
-                {item.label}
-              </Nav.Link>
-            </Nav.Item>
-          ))}
-        </Nav>
+    <div style={{
+      width: 220,
+      background: 'linear-gradient(135deg, #556f70 0%, #49b6b2 100%)',
+      color: '#fff',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '2rem 0 1.5rem 0',
+      boxShadow: '2px 0 12px rgba(85,111,112,0.08)',
+      position: 'sticky',
+      top: 0,
+      height: '100vh',
+      zIndex: 10
+    }}>
+      <div style={{ marginBottom: 40, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <FaUserCog size={28} />
+        <span style={{ fontWeight: 700, fontSize: 22 }}>
+          {userRol === 'ADMIN' ? 'Admin' : userRol === 'DOCTORA' ? 'Doctora' : userRol === 'RECEPCIONISTA' ? 'Recepción' : ''}
+        </span>
       </div>
-      <Button className="btn" onClick={handleLogout}>
+      <nav style={{ width: '100%', flex: 1 }}>
+        {menuItems.map(item => (
+          <Link
+            key={item.path}
+            to={item.path}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '12px 28px',
+              color: '#fff',
+              textDecoration: 'none',
+              fontWeight: 500,
+              fontSize: 17,
+              borderRadius: 12,
+              margin: '6px 0',
+              transition: 'background 0.2s',
+              background: location.pathname === item.path ? 'rgba(255,255,255,0.10)' : 'none',
+            }}
+          >
+            {item.icon}
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+      <button
+        onClick={handleLogout}
+        style={{
+          marginTop: 'auto',
+          background: '#fff',
+          color: '#556f70',
+          border: 'none',
+          borderRadius: 8,
+          fontWeight: 700,
+          fontSize: 16,
+          boxShadow: '0 2px 8px rgba(85,111,112,0.10)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          width: '80%',
+          justifyContent: 'center',
+          padding: '10px 0',
+          position: 'absolute',
+          bottom: 30,
+          left: '10%',
+        }}
+      >
         <FaSignOutAlt className="me-2" />
         Cerrar sesión
-      </Button>
+      </button>
     </div>
   );
 };

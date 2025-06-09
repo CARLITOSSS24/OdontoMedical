@@ -21,7 +21,11 @@ const colorScheme = {
 const TablaUser = () => {
   // Contexto de autenticación
   const { user } = useContext(AuthContext);
-  const userRol = typeof user.Permiso === "string" ? user.Permiso : user.Permiso?.rol || "";
+  let userRol = typeof user.Permiso === "string" ? user.Permiso : user.Permiso?.rol || "";
+  // Forzar a mayúsculas y quitar espacios
+  userRol = (userRol || '').toUpperCase().trim();
+  // Log para depuración
+  console.log('userRol:', userRol, 'user:', user);
 
   // Permisos
   const puedeVer = tienePermiso(userRol, "ADMIN") || tienePermiso(userRol, "DOCTORA") || tienePermiso(userRol, "RECEPCIONISTA");
@@ -62,22 +66,29 @@ const TablaUser = () => {
 
   const fetchPermisos = async () => {
     try {
-      // Ajusta la ruta si tu backend la tiene diferente
       const response = await api.get('/permisos');
-      setPermisos(response.data);
+      if (response.data) {
+        setPermisos(response.data);
+      }
     } catch (error) {
-      setPermisos([]);
+      console.error('Error al cargar permisos:', error);
+      // No establecemos error global ya que no es crítico
     }
   };
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await api.get(API_URL);
-      setUsers(response.data);
       setError(null);
+      const response = await api.get(API_URL);
+      if (response.data) {
+        setUsers(response.data);
+      } else {
+        setError('No se recibieron datos del servidor');
+      }
     } catch (error) {
-      setError('Error al cargar los usuarios. Por favor intente nuevamente.');
+      console.error('Error al cargar usuarios:', error);
+      setError(error.response?.data?.message || 'Error al cargar los usuarios. Por favor intente nuevamente.');
     } finally {
       setLoading(false);
     }

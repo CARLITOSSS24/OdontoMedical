@@ -13,22 +13,49 @@ instance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error("Error en la petición:", error);
+    return Promise.reject(error);
+  }
 );
 
 // Interceptor para manejar expiración o invalidez del token
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (
-      error.response &&
-      (error.response.status === 401 || error.response.status === 403)
-    ) {
-      // El token es inválido o expiró
-      localStorage.removeItem("token");
-      // Redirige al login (ajusta la ruta si es diferente en tu app)
-      window.location.href = "/login";
+    if (error.response) {
+      const { status, config } = error.response;
+      
+      // Solo manejar errores de autenticación
+      if (status === 401 || status === 403) {
+        // No redirigir si ya estamos en login o si es una petición de login
+        const isLoginPage = window.location.pathname === '/login';
+        const isLoginRequest = config.url.includes('/login');
+        
+        if (!isLoginPage && !isLoginRequest) {
+          // Limpiar el token solo si no estamos en login
+          localStorage.removeItem("token");
+          
+          // Usar window.location.href para una redirección completa
+          window.location.href = "/login";
+        }
+      }
+      
+      // Log del error para debugging
+      console.error("Error en la respuesta:", {
+        status: error.response.status,
+        data: error.response.data,
+        url: config.url,
+        pathname: window.location.pathname
+      });
+    } else if (error.request) {
+      // La petición fue hecha pero no se recibió respuesta
+      console.error("No se recibió respuesta:", error.request);
+    } else {
+      // Error al configurar la petición
+      console.error("Error en la configuración:", error.message);
     }
+    
     return Promise.reject(error);
   }
 );

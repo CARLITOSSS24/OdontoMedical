@@ -48,16 +48,32 @@ const Login = () => {
       const decoded = jwtDecode(token);
       const rol = decoded.Permiso;
 
+      // Primero hacer login para establecer el estado
       login(token);
 
-      if (rol === "ADMIN") navigate("/admin/usuarios");
-      else if (rol === "DOCTORA") navigate("/doctora/mis-citas");
-      else if (rol === "RECEPCIONISTA") navigate("/recepcionista/usuarios");
-      else if (rol === "PACIENTE") navigate("/perfil");
-      else navigate("/unauthorized");
+      // Esperar a que el estado se actualice
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Luego redirigir según el rol
+      switch (rol) {
+        case "ADMIN":
+          window.location.href = "/admin/dashboard";
+          break;
+        case "DOCTORA":
+          window.location.href = "/doctora/dashboard";
+          break;
+        case "RECEPCIONISTA":
+          window.location.href = "/recepcionista/dashboard";
+          break;
+        case "PACIENTE":
+          window.location.href = "/paciente/dashboard";
+          break;
+        default:
+          window.location.href = "/unauthorized";
+      }
     } catch (err) {
-      setError("Credenciales incorrectas o error de servidor.");
       console.error("Error de login:", err);
+      setError(err.response?.data?.message || "Credenciales incorrectas o error de servidor.");
     }
   };
 
