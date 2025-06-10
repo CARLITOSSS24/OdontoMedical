@@ -46,14 +46,11 @@ const HomePage = () => {
         <div
           style={{
             position: 'absolute',
-            right: 0,
-            left: 0,
+            right: 30,
             top: 70,
             zIndex: 100,
-            minWidth: 'unset',
+            minWidth: 340,
             maxWidth: 400,
-            width: '90vw',
-            margin: '0 auto',
             background: '#fff',
             borderRadius: 16,
             boxShadow: '0 8px 32px rgba(85,111,112,0.18)',
