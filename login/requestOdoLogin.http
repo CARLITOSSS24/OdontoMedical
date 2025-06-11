@@ -1,7 +1,0 @@
-POST http://localhost:5000/api/login
-Content-Type: application/json
-
-{
-  "Correo": "manuuuuelll@gmail.com",
-  "Clave": "manuel123"
-}
