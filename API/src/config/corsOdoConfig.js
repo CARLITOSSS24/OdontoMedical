@@ -1,9 +1,10 @@
 import cors from "cors";
 
 const corsOptions = {
-    origin: '*', 
+    origin: ['https://odontomedicalsoft.vercel.app', 'http://localhost:5173'],
     methods: 'GET,POST,PATCH,DELETE',
-    allowedHeaders: ['Authorization', 'Content-Type']
+    allowedHeaders: ['Authorization', 'Content-Type'],
+    credentials: true
 };
 
 export default cors(corsOptions);
