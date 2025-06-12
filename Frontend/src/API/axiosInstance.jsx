@@ -1,8 +1,13 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  withCredentials: true
+  baseURL: import.meta.env.VITE_API_URL || "https://odontomedical.onrender.com/api",
+  withCredentials: true,
+  timeout: 10000, // 10 segundos de timeout
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
 });
 
 // Interceptor para adjuntar el token en cada petición
@@ -51,7 +56,11 @@ instance.interceptors.response.use(
       });
     } else if (error.request) {
       // La petición fue hecha pero no se recibió respuesta
-      console.error("No se recibió respuesta:", error.request);
+      console.error("Error de conexión:", {
+        message: "No se pudo conectar con el servidor",
+        url: error.config?.url,
+        method: error.config?.method
+      });
     } else {
       // Error al configurar la petición
       console.error("Error en la configuración:", error.message);
