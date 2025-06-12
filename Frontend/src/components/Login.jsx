@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import api from "../API/axiosInstance";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { jwtDecode } from "jwt-decode";
@@ -34,7 +34,7 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      const res = await api.post("/login", {
+      const res = await axios.post("https://odonto-api.vercel.app/api/login", {
         Correo: correo,
         Clave: clave
       });
@@ -72,7 +72,7 @@ const Login = () => {
           window.location.href = "/unauthorized";
       }
     } catch (err) {
-      console.error("Error de login:", err);
+      console.error("Error completo:", err.response?.data);;
       setError(err.response?.data?.message || "Credenciales incorrectas o error de servidor.");
     }
   };
@@ -83,7 +83,7 @@ const Login = () => {
     setRecSuccess("");
     setRecLoading(true);
     try {
-      await api.post("/login/solicitar-codigo", { correo: recCorreo, documento: recDocumento });
+      await axios.post("https://odonto-api.vercel.app/api/login/solicitar-codigo", { correo: recCorreo, documento: recDocumento });
       setRecStep(2);
       setRecSuccess("Código enviado al correo. Revisa tu bandeja de entrada.");
     } catch (err) {
@@ -98,7 +98,7 @@ const Login = () => {
     setRecSuccess("");
     setRecLoading(true);
     try {
-      await api.post("/login/restablecer-contrasena", {
+      await axios.post("https://odonto-api.vercel.app/api/login/restablecer-contrasena", {
         correo: recCorreo,
         codigo: recCodigo,
         nuevaClave: recNuevaClave

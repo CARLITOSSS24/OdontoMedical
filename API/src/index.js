@@ -41,6 +41,10 @@ app.get("/", (req, res) => {
   res.send("<h1>ESTA ES LA API</h1>");
 });
 
-app.listen(port, () => {
-  console.log(`Servidor iniciado en el puerto ${port}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    console.log(`Servidor iniciado en el puerto ${port}`);
+  });
+}
+
+export default app

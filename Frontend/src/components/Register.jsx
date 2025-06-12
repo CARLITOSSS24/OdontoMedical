@@ -106,7 +106,7 @@ const Register = () => {
     setVerificationSuccess('');
     setVerificationLoading(true);
     try {
-      await api.post('/users/verificar-correo', {
+      await axios.post('https://odonto-api.vercel.app/api/users/verificar-correo', {
         correo: verificationCorreo,
         codigo: verificationCode
       });

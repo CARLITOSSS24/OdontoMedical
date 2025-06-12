@@ -12,35 +12,51 @@ import modelOdoConsultorio from "./src/routes/rutasOdoConsultorios.js";
 import modelOdoDoctora from "./src/routes/rutasOdoDoctora.js";
 import rutasOdoCitas from "./src/routes/rutasOdoCitas.js"; 
 import rutasOdoLogin from "./src/routes/rutasOdoLogin.js";
-import rutasOdoPassword from "./src/routes/rutasOdoPassword.js";
 
-events.setMaxListeners(20);
+import mongoose from "mongoose";
 
 dotenv.config();
+events.setMaxListeners(20);
 
 const app = express();
-
 app.use(corsConfig);
-
 app.use(express.json());
 
-// Registro de rutas
-app.use('/api/', modelOdoPermisos);
-app.use('/api/', rutasOdoHistoriales);
-app.use('/api/', modelOdoServicios);
-app.use('/api/', modelOdoUsers);
-app.use('/api/', modelOdoConsultorio);
-app.use('/api/', modelOdoDoctora);
-app.use('/api/', rutasOdoCitas);
-app.use('/api/', rutasOdoLogin);
-app.use('/api/', rutasOdoPassword);
+let isConnected = false;
+async function connectDB() {
+  if (isConnected) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    throw error;
+  }
+}
 
-swaggerDocs(app, port); 
+// Middleware para conectar a la base de datos en cada request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
+
+app.use("/api/", modelOdoPermisos);
+app.use("/api/", rutasOdoHistoriales);
+app.use("/api/", modelOdoServicios);
+app.use("/api/", modelOdoUsers);
+app.use("/api/", modelOdoConsultorio);
+app.use("/api/", modelOdoDoctora);
+app.use("/api/", rutasOdoCitas);
+app.use("/api/", rutasOdoLogin);
 
 app.get("/", (req, res) => {
-  res.send("<h1>ESTA ES LA API</h1>");
+  res.send("<h1>ESTA ES LA API (Serverless en Vercel)</h1>");
 });
 
-app.listen(port, () => {
-  console.log(`Servidor iniciado en el puerto ${port}`);
-});
+// Para Vercel, simplemente exportamos la app de Express
+export default app;
