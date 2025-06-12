@@ -41,6 +41,7 @@ app.get("/", (req, res) => {
   res.send("<h1>ESTA ES LA API</h1>");
 });
 
+<<<<<<< HEAD
 if (process.env.NODE_ENV !== "test") {
   app.listen(port, () => {
     console.log(`Servidor iniciado en el puerto ${port}`);
@@ -48,3 +49,8 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 export default app
+=======
+app.listen(port, () => {
+  console.log(`Servidor iniciado en el puerto ${port}`);
+});
+>>>>>>> 91b20b8fd8ada65a61f91d959e637b878f4f7ea1
