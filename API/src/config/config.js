@@ -13,7 +13,8 @@ const config = {
   recoverySecret: process.env.RECOVERY_SECRET || 'recovery_secret_key',
   mailerUser: process.env.MAILER_USER,
   mailerPassword: process.env.MAILER_PASSWORD,
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5000'
+  frontendUrl: process.env.FRONTEND_URL || 'https://odontomedical.vercel.app/',
+  apiUrl: process.env.API_URL || 'https://odontomedical.onrender.com/api'
 };
 
 module.exports = config; 
