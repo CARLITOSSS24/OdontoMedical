@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_URL = "https://odontomedical.onrender.com/api";
+
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://odontomedical.onrender.com/api",
+  baseURL: API_URL,
   withCredentials: true,
   timeout: 10000, // 10 segundos de timeout
   headers: {
