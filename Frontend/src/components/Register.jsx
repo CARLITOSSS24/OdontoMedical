@@ -106,7 +106,7 @@ const Register = () => {
     setVerificationSuccess('');
     setVerificationLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/users/verificar-correo', {
+      await api.post('/users/verificar-correo', {
         correo: verificationCorreo,
         codigo: verificationCode
       });

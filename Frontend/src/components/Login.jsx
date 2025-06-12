@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
+import api from "../API/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { jwtDecode } from "jwt-decode";
@@ -34,7 +34,7 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
+      const res = await api.post("/login", {
         Correo: correo,
         Clave: clave
       });
@@ -83,7 +83,7 @@ const Login = () => {
     setRecSuccess("");
     setRecLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/login/solicitar-codigo", { correo: recCorreo, documento: recDocumento });
+      await api.post("/login/solicitar-codigo", { correo: recCorreo, documento: recDocumento });
       setRecStep(2);
       setRecSuccess("Código enviado al correo. Revisa tu bandeja de entrada.");
     } catch (err) {
@@ -98,7 +98,7 @@ const Login = () => {
     setRecSuccess("");
     setRecLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/login/restablecer-contrasena", {
+      await api.post("/login/restablecer-contrasena", {
         correo: recCorreo,
         codigo: recCodigo,
         nuevaClave: recNuevaClave
